@@ -80,7 +80,7 @@ public class Main extends JPanel {
 
             if (paskutinis.equals(pabaiga)) {
                 sprendimoKelias = kelias;
-                kelioIlgisLabel.setText("BFS kelio ilgis: " + (kelias.size() + 1));
+                kelioIlgisLabel.setText("BFS kelio ilgis: " + (kelias.size() -1));
                 judetiAgentui();
                 return;
             }
