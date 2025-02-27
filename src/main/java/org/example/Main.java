@@ -32,40 +32,39 @@ public class Main extends JPanel {
     }
 
     /**
-     * Sugeneruoja naują labirintą naudojant rekursyvinį gylio pirmą paieškos metodą (DFS).
+     * Sugeneruoja naują labirintą su dvejais praejimais.
      */
     private void sukurtiLabirinta() {
         labirintas = new int[DYDIS][DYDIS];
         for (int[] eilute : labirintas) Arrays.fill(eilute, SIENA);
-        Stack<Point> stekas = new Stack<>();
-        stekas.push(pradzia);
+
         Random rand = new Random();
+        int[] kelioIlgiai = new int[2];
 
-        while (!stekas.isEmpty()) {
-            Point dabartinis = stekas.peek();
-            List<Point> kaimynai = new ArrayList<>();
-            for (int[] k : kryptys) {
-                int nx = dabartinis.x + k[0] * 2, ny = dabartinis.y + k[1] * 2;
-                if (nx >= 0 && ny >= 0 && nx < DYDIS && ny < DYDIS && labirintas[nx][ny] == SIENA)
-                    kaimynai.add(new Point(nx, ny));
+        for (int i = 0; i < 2; i++) {
+            int x = pradzia.x, y = pradzia.y;
+            int ilgis = 0;
+            while (x != pabaiga.x || y != pabaiga.y) {
+                labirintas[x][y] = KELIAS;
+                ilgis++;
+                if (rand.nextBoolean()) {
+                    if (x < pabaiga.x) x++;
+                    else if (x > pabaiga.x) x--;
+                } else {
+                    if (y < pabaiga.y) y++;
+                    else if (y > pabaiga.y) y--;
+                }
             }
-            if (!kaimynai.isEmpty()) {
-                Point kitas = kaimynai.get(rand.nextInt(kaimynai.size()));
-                labirintas[(dabartinis.x + kitas.x) / 2][(dabartinis.y + kitas.y) / 2] = KELIAS;
-                labirintas[kitas.x][kitas.y] = KELIAS;
-                stekas.push(kitas);
-            } else stekas.pop();
+            kelioIlgiai[i] = ilgis;
         }
-
-        // Užtikrina, kad išėjimas visada būtų atviras
         labirintas[pabaiga.x][pabaiga.y] = KELIAS;
-        labirintas[pabaiga.x - 1][pabaiga.y] = KELIAS;
 
         agentas = new Point(pradzia);
         sprendimoKelias = null;
-        kelioIlgisLabel.setText("Kelio ilgis: N/A");
+        kelioIlgisLabel.setText("1 kelias: " + kelioIlgiai[0] + " žingsniai, 2 kelias: " + kelioIlgiai[1] + " žingsniai");
         repaint();
     }
+
 
     /**
      * Randa trumpiausią kelią labirinte naudojant BFS algoritmą.
@@ -81,7 +80,7 @@ public class Main extends JPanel {
 
             if (paskutinis.equals(pabaiga)) {
                 sprendimoKelias = kelias;
-                kelioIlgisLabel.setText("BFS kelio ilgis: " + kelias.size());
+                kelioIlgisLabel.setText("BFS kelio ilgis: " + (kelias.size() + 1));
                 judetiAgentui();
                 return;
             }
